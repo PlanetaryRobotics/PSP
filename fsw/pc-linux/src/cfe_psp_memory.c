@@ -157,23 +157,16 @@ void CFE_PSP_InitCDS(void)
    */
    
    #ifdef CFE_PSP_CDS_NONVOLATILE_FILEPATH
-      // -------------------------
-      // TODO(tushaar/alex): move this to cmake to have less system calls and catch any env issues at compile time
-      // - Also remove stdlib.h when complete
-      char* full_cds_filepath = getenv("HOME"); // Uses $HOME environment variable to put CFE_PSP_CDS_NONVOLATILE_FILEPATH in home directory 
-      full_cds_filepath = strcat(full_cds_filepath, CFE_PSP_CDS_NONVOLATILE_FILEPATH);
-      // -------------------------
-
-      OS_printf("CFE_PSP: TRYING TO open CDS nonvolatile filepath: %s\n", full_cds_filepath);
-      int fd = open(full_cds_filepath, O_RDWR | O_CREAT, 0644); // 0644 is file permission code
+      OS_printf("CFE_PSP: TRYING TO open CDS nonvolatile filepath: %s\n", CFE_PSP_CDS_NONVOLATILE_FILEPATH);
+      int fd = open(CFE_PSP_CDS_NONVOLATILE_FILEPATH, O_RDWR | O_CREAT, 0644); // 0644 is file permission code
       if (fd == -1)
       {
          // Report failure
-         OS_printf("CFE_PSP: Cannot open CDS nonvolatile filepath: %s\n", full_cds_filepath);
+         OS_printf("CFE_PSP: Cannot open CDS nonvolatile filepath: %s\n", CFE_PSP_CDS_NONVOLATILE_FILEPATH);
          exit(-1);
       }
        
-      int trunc_ret = truncate(full_cds_filepath, CFE_PSP_CDS_SIZE); // give file space
+      int trunc_ret = truncate(CFE_PSP_CDS_NONVOLATILE_FILEPATH, CFE_PSP_CDS_SIZE); // give file space
       (void)trunc_ret;
       void* mmap_memory = mmap(NULL, CFE_PSP_CDS_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0); // 0 is memory block offset
       

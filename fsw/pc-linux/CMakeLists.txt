@@ -9,6 +9,12 @@
 
 include_directories(inc) 
 
+get_filename_component(HOME_DIR_PATH "~" ABSOLUTE)
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/inc/cfe_psp_config.h.in"
+  "${CMAKE_CURRENT_SOURCE_DIR}/inc/cfe_psp_config.h")
+
+
 # Build the pc-linux implementation as a library
 add_library(psp-${CFE_PSP_TARGETNAME}-impl OBJECT
     src/cfe_psp_exception.c
