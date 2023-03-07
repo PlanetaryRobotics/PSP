@@ -34,6 +34,16 @@
 #include <pthread.h>
 
 /*
+ * Specify filepath for where to store nonvolatile CDS (Critical Data Store) data
+ * Placed in user home directory using $HOME environment variable i.e. $HOME/<filepath>
+ * Note that this works by adjusting cFE PSP settings
+ * - Comment out to make CDS use default PSP which is volatile storage
+ *   - Will initialize if file does not exist, then will persist until filepath is deleted (or changed here)
+ * - Uncomment to make CDS use nonvolatile storage
+ *   - Will initialize and persist for processor resets
+ */
+#define CFE_PSP_CDS_NONVOLATILE_FILEPATH "/cds_nonvolatile" 
+/*
 ** This define sets the number of memory ranges that are defined in the memory range defintion
 ** table.
 */

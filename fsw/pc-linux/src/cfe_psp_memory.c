@@ -46,6 +46,9 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <fcntl.h>
+#include <sys/mman.h> // mmap()
+#include <errno.h> // errno cases
+#include <stdlib.h> // get $HOME environment variable
 
 /*
 ** cFE includes 
@@ -152,22 +155,55 @@ void CFE_PSP_InitCDS(void)
    /* 
    ** connect to (and possibly create) the segment: 
    */
-   if ((CDSShmId = shmget(key, CFE_PSP_CDS_SIZE, 0644 | IPC_CREAT)) == -1) 
-   {
-        OS_printf("CFE_PSP: Cannot shmget CDS Shared memory Segment!\n");
-        exit(-1);
-   }
+   
+   #ifdef CFE_PSP_CDS_NONVOLATILE_FILEPATH
+      // -------------------------
+      // TODO(tushaar/alex): move this to cmake to have less system calls and catch any env issues at compile time
+      // - Also remove stdlib.h when complete
+      char* full_cds_filepath = getenv("HOME"); // Uses $HOME environment variable to put CFE_PSP_CDS_NONVOLATILE_FILEPATH in home directory 
+      full_cds_filepath = strcat(full_cds_filepath, CFE_PSP_CDS_NONVOLATILE_FILEPATH);
+      // -------------------------
 
-   /* 
-   ** attach to the segment to get a pointer to it: 
-   */
-   CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr = shmat(CDSShmId, (void *)0, 0);
-   if (CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr == (void*)(-1))
-   {
-        OS_printf("CFE_PSP: Cannot shmat to CDS Shared memory Segment!\n");
-        exit(-1);
-   }
+      OS_printf("CFE_PSP: TRYING TO open CDS nonvolatile filepath: %s\n", full_cds_filepath);
+      int fd = open(full_cds_filepath, O_RDWR | O_CREAT, 0644); // 0644 is file permission code
+      if (fd == -1)
+      {
+         // Report failure
+         OS_printf("CFE_PSP: Cannot open CDS nonvolatile filepath: %s\n", full_cds_filepath);
+         exit(-1);
+      }
+       
+      int trunc_ret = truncate(full_cds_filepath, CFE_PSP_CDS_SIZE); // give file space
+      (void)trunc_ret;
+      void* mmap_memory = mmap(NULL, CFE_PSP_CDS_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0); // 0 is memory block offset
+      
+      if (mmap_memory == MAP_FAILED){
+         OS_printf("CFE_PSP: mmap failed!\n");
+         exit(-1);
+      }
+      CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr = mmap_memory; // 0 is memory block offset
+      if (CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr == (void*)(-1))
+      {
+         OS_printf("CFE_PSP: Cannot mmap to CDS Shared memory Segment!\n");
+         exit(-1);
+      }
+   #else
+      if ((CDSShmId = shmget(key, CFE_PSP_CDS_SIZE, 0644 | IPC_CREAT)) == -1) 
+      {
+         OS_printf("CFE_PSP: Cannot shmget CDS Shared memory Segment!\n");
+         exit(-1);
+      }
 
+      /* 
+      ** attach to the segment to get a pointer to it: 
+      */
+      CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr = shmat(CDSShmId, (void *)0, 0);
+      if (CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr == (void*)(-1))
+      {
+         OS_printf("CFE_PSP: Cannot shmat to CDS Shared memory Segment!\n");
+         exit(-1);
+      }
+   #endif
    CFE_PSP_ReservedMemoryMap.CDSMemory.BlockSize = CFE_PSP_CDS_SIZE;
 }
 
