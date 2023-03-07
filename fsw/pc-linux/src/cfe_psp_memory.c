@@ -164,6 +164,8 @@ void CFE_PSP_InitCDS(void)
          // Report failure
          OS_printf("CFE_PSP: Cannot open CDS nonvolatile filepath: %s\n", CFE_PSP_CDS_NONVOLATILE_FILEPATH);
          exit(-1);
+      }else{
+         OS_printf("CFE_PSP: Opened CDS nonvolatile filepath: %s\n", CFE_PSP_CDS_NONVOLATILE_FILEPATH);
       }
        
       int trunc_ret = truncate(CFE_PSP_CDS_NONVOLATILE_FILEPATH, CFE_PSP_CDS_SIZE); // give file space
