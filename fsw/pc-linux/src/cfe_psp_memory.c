@@ -733,8 +733,9 @@ int32 CFE_PSP_InitProcessorReservedMemory( uint32 RestartType )
      */
     if ( RestartType == CFE_PSP_RST_TYPE_POWERON )
     {
-        OS_printf("CFE_PSP: Clearing out CFE CDS Shared memory segment.\n");
-        memset(CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr, 0, CFE_PSP_CDS_SIZE);
+      /* Do not clear the CDS for poweron, to support CDS persistance through power cycles */
+      //   OS_printf("CFE_PSP: Clearing out CFE CDS Shared memory segment.\n");
+      //   memset(CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr, 0, CFE_PSP_CDS_SIZE);
         OS_printf("CFE_PSP: Clearing out CFE Reset Shared memory segment.\n");
         memset(CFE_PSP_ReservedMemoryMap.ResetMemory.BlockPtr, 0, CFE_PSP_RESET_AREA_SIZE);
         OS_printf("CFE_PSP: Clearing out CFE User Reserved Shared memory segment.\n");
