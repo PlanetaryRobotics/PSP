@@ -42,7 +42,7 @@
  * - Uncomment to make CDS use nonvolatile storage
  *   - Will initialize and persist for processor resets
  */
-#define CFE_PSP_CDS_NONVOLATILE_FILEPATH "/cds_nonvolatile" 
+#define CFE_PSP_CDS_NONVOLATILE_FILEPATH "/home/alexanderpletta/moonranger/moonranger-rover-flight/cds_nonvolatile" 
 /*
 ** This define sets the number of memory ranges that are defined in the memory range defintion
 ** table.
