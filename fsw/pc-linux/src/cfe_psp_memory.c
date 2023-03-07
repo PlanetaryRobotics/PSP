@@ -157,16 +157,8 @@ void CFE_PSP_InitCDS(void)
    */
    
    #ifdef CFE_PSP_CDS_NONVOLATILE_FILEPATH
-      // -------------------------
-      // TODO(tushaar/alex): move this to cmake to have less system calls and catch any env issues at compile time
-      // - Also remove stdlib.h when complete
-      // char* full_cds_filepath = getenv("HOME"); // Uses $HOME environment variable to put CFE_PSP_CDS_NONVOLATILE_FILEPATH in home directory 
-      // full_cds_filepath = strcat(full_cds_filepath, CFE_PSP_CDS_NONVOLATILE_FILEPATH);
-      // full_cds_filepath = CFE_PSP_CDS_NONVOLATILE_FILEPATH;
-      // -------------------------
-
       OS_printf("CFE_PSP: TRYING TO open CDS nonvolatile filepath: %s\n", CFE_PSP_CDS_NONVOLATILE_FILEPATH);
-      int fd = open(CFE_PSP_CDS_NONVOLATILE_FILEPATH, O_RDWR | O_CREAT, 0666); // 0644 is file permission code
+      int fd = open(CFE_PSP_CDS_NONVOLATILE_FILEPATH, O_RDWR | O_CREAT, 0644); // 0644 is file permission code
       if (fd == -1)
       {
          // Report failure
